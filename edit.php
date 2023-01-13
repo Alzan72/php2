@@ -24,33 +24,17 @@ $hasiljoin=$conn->query($sqljoin);
 $hasiljoin2=$hasiljoin->fetch_assoc();
 // var_dump($hasiljoin);die;
 
-
-
 if (empty($namafile)) {
-    if (empty($hasiljoin2['id_kelompok'])) {
-    $sql="INSERT INTO penempatan (id,id_profil,id_kelompok) values (NULL, $id,$kelompok)   ";
-   $conn->query($sql);
-   $sql2="UPDATE profil p
-   INNER JOIN penempatan pe ON p.ID = pe.id_profil
-   INNER JOIN kelompok k ON pe.id_kelompok = k.ID
-   SET p.nama = '$nama', pe.id_kelompok = '$kelompok', p.jurusan=   '$jurusan' , p.alamat = '$alamat', p.foto = '$filelama'
-   WHERE pe.id_profil = $id OR p.ID = $id;";
+    if (empty($hasiljoin2['id_kelompok']) && $kelompok > 0) {
+            insertKelompok();
+            updateDataJoin();
 
-   $conn->query($sql2);
-
-   header("location:tampil.php?pesan=ubah");
-
-    }else{
-        $sql=" UPDATE profil p
-        INNER JOIN penempatan pe ON p.ID = pe.id_profil
-        INNER JOIN kelompok k ON pe.id_kelompok = k.ID
-        SET p.nama = '$nama', pe.id_kelompok = '$kelompok', p.jurusan='$jurusan' , p.alamat = '$alamat', p.foto = '$filelama'
-        WHERE pe.id_profil = $id OR p.ID = $id;        
-        ";
-
-    $conn->query($sql);
-    header("location:tampil.php?pesan=ubah");
+    }elseif (isset($hasiljoin2)){
+       updateDataJoin();
+} else{
+   updateDataProfil();
 }
+
 }
 else {
     if (!in_array($tipefile,$ekstensi)) {
@@ -64,35 +48,17 @@ else {
             unlink($direktori.$filelama);
             move_uploaded_file($temp, $direktori.$namafilesimpan);
 
-            if (empty($hasiljoin2['id_kelompok'])) {
-                $sql="INSERT INTO penempatan (id,id_profil,id_kelompok) values (NULL, $id,$kelompok)   ";
-               $conn->query($sql);
-               $sql2="UPDATE profil p
-               INNER JOIN penempatan pe ON p.ID = pe.id_profil
-               INNER JOIN kelompok k ON pe.id_kelompok = k.ID
-               SET p.nama = '$nama', pe.id_kelompok = '$kelompok',p.jurusan=$jurusan , p.alamat = '$alamat', p.foto = '$namafilesimpan'
-               WHERE pe.id_profil = $id AND p.ID = $id;";
-            
-               $conn->query($sql2);
-            
-               header("location:tampil.php?pesan=ubah");
-            
+            if (empty($hasiljoin2['id_kelompok']) && $kelompok > 1) {
+                insertKelompok();
+                updateDataJoin();
+                }
+                elseif (isset($hasiljoin2)){
+                   updateDataJoin();
                 }
                 else{
-                    $sql=" UPDATE profil p
-                    INNER JOIN penempatan pe ON p.ID = pe.id_profil
-                    INNER JOIN kelompok k ON pe.id_kelompok = k.ID
-                    SET p.nama = '$nama', pe.id_kelompok = '$kelompok',p.jurusan=$jurusan , p.alamat = '$alamat', p.foto = '$namafilesimpan'
-                    WHERE pe.id_profil = $id OR p.ID = $id;        
-                    ";
-            
-                $conn->query($sql);
-                header("location:tampil.php?pesan=ubah");
-
+                   updateDataProfil();
                 }
             
         }
     }    
 }
-
-?>
